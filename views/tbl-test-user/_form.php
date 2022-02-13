@@ -20,7 +20,16 @@ use kartik\widgets\DatePicker;
 
     <?= $form->field($model, 'roll_id')->textInput() ?>
 
-    <?= $form->field($model, 'dob')->textInput() ?>
+    <?= $form->field($model, 'dob')->widget(DatePicker::widget([
+    'name' => 'dp_5',
+    'type' => DatePicker::TYPE_INLINE,
+    'value' => '1-jan-1900',
+    'type' => DatePicker::TYPE_INLINE,
+    'pluginOptions' => [
+        'format' => 'dd-M-yyyy',
+        'multidate' => true
+    ]
+]))?>
 
     <?= $form->field($model, 'created_on')->textInput() ?>
 
