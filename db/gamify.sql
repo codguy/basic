@@ -1,3 +1,41 @@
+--
+-- Table structure for table `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `auth_key` varchar(32) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `password_reset_token` varchar(255) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `status` smallint(6) NOT NULL DEFAULT 10,
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `password_reset_token` (`password_reset_token`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 -- phpMyAdmin SQL Dump
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
@@ -604,6 +642,31 @@ ALTER TABLE `friendship`
 ALTER TABLE `friendship`
   ADD CONSTRAINT `friendship_ibfk_1` FOREIGN KEY (`player1_id`) REFERENCES `player` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `friendship_ibfk_2` FOREIGN KEY (`player2_id`) REFERENCES `player` (`id`) ON DELETE CASCADE;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'testuser', 'test-auth-key', '$2y$13$E.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e', NULL, 'testuser@example.com', 10, 1678886400, 1678886400),
+(2, 'testuser2', 'test-auth-key2', '$2y$13$E.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e.Z.w.8.e', NULL, 'testuser2@example.com', 10, 1678886400, 1678886400);
+
+--
+-- Dumping data for table `player`
+--
+
+INSERT INTO `player` (`id`, `user_id`, `level`, `xp`, `physical_health`, `creativity`, `knowledge`, `happiness`, `money`, `currency`, `last_task_completed_at`, `streak`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 0, 0, 0, 0, 0, 0, 0, NULL, 0, '2023-11-24 06:39:01', '2023-11-24 06:39:01'),
+(2, 2, 1, 0, 0, 0, 0, 0, 0, 0, NULL, 0, '2023-11-24 06:39:01', '2023-11-24 06:39:01');
+
+--
+-- Dumping data for table `task`
+--
+
+INSERT INTO `task` (`id`, `player_id`, `title`, `description`, `due_date`, `xp_reward`, `currency_reward`, `physical_health_effect`, `creativity_effect`, `knowledge_effect`, `happiness_effect`, `money_effect`, `completed`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Complete project proposal', 'Finish writing the project proposal for the new gamification app.', '2023-12-01', 50, 10, 0, 10, 20, 10, 0, 0, '2023-11-24 06:39:01', '2023-11-24 06:39:01'),
+(2, 1, 'Go for a run', 'Run for at least 30 minutes.', '2023-11-25', 20, 5, 20, 0, 0, 10, 0, 0, '2023-11-24 06:39:01', '2023-11-24 06:39:01'),
+(3, 2, 'Read a book', 'Read at least 50 pages of a book.', '2023-11-26', 30, 0, 0, 10, 20, 10, 0, 0, '2023-11-24 06:39:01', '2023-11-24 06:39:01');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
