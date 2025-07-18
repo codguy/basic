@@ -2,16 +2,18 @@
 
 namespace app\controllers;
 
-use app\models\Task;
+use app\models\Friendship;
+use app\models\Player;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * TaskController implements the CRUD actions for Task model.
+ * FriendshipController implements the CRUD actions for Friendship model.
  */
-class TaskController extends Controller
+class FriendshipController extends Controller
 {
     /**
      * @inheritDoc
@@ -32,14 +34,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Lists all Task models.
+     * Lists all Friendship models.
      *
      * @return string
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Task::find(),
+            'query' => Friendship::find()->where(['or', ['player1_id' => Yii::$app->user->identity->player->id], ['player2_id' => Yii::$app->user->identity->player->id]]),
             /*
             'pagination' => [
                 'pageSize' => 50
@@ -58,62 +60,57 @@ class TaskController extends Controller
     }
 
     /**
-     * Displays a single Task model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Task model.
+     * Creates a new Friendship model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+    public function actionCreate($id)
     {
-        $model = new Task();
+        $model = new Friendship();
+        $model->player1_id = Yii::$app->user->identity->player->id;
+        $model->player2_id = $id;
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+        if ($model->save()) {
+            Yii::$app->session->setFlash('success', 'Friend request sent.');
         } else {
-            $model->loadDefaultValues();
+            Yii::$app->session->setFlash('error', 'Failed to send friend request.');
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->redirect(['/player/view', 'id' => $id]);
     }
 
     /**
-     * Updates an existing Task model.
-     * If update is successful, the browser will be redirected to the 'view' page.
+     * Accepts a friend request.
      * @param int $id ID
-     * @return string|\yii\web\Response
+     * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionAccept($id)
     {
         $model = $this->findModel($id);
+        $model->status = 'accepted';
+        $model->save();
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->redirect(['index']);
     }
 
     /**
-     * Deletes an existing Task model.
+     * Declines a friend request.
+     * @param int $id ID
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionDecline($id)
+    {
+        $model = $this->findModel($id);
+        $model->status = 'declined';
+        $model->save();
+
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Deletes an existing Friendship model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return \yii\web\Response
@@ -127,32 +124,18 @@ class TaskController extends Controller
     }
 
     /**
-     * Finds the Task model based on its primary key value.
+     * Finds the Friendship model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Task the loaded model
+     * @return Friendship the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Task::findOne(['id' => $id])) !== null) {
+        if (($model = Friendship::findOne(['id' => $id])) !== null) {
             return $model;
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * Completes a Task.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionComplete($id)
-    {
-        $model = $this->findModel($id);
-        $model->complete();
-
-        return $this->redirect(['index']);
     }
 }

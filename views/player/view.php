@@ -24,6 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+        <?= Html::a('Add Friend', ['/friendship/create', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= DetailView::widget([
@@ -31,14 +32,47 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'user_id',
+            'level',
+            'xp',
             'physical_health',
             'creativity',
             'knowledge',
             'happiness',
             'money',
+            'currency',
+            'streak',
+            'last_task_completed_at',
             'created_at',
             'updated_at',
         ],
     ]) ?>
+
+    <h2>Achievements</h2>
+    <ul>
+        <?php foreach ($model->playerAchievements as $playerAchievement): ?>
+            <li><?= $playerAchievement->achievement->name ?></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <h2>Quests</h2>
+    <ul>
+        <?php foreach ($model->playerQuests as $playerQuest): ?>
+            <li><?= $playerQuest->quest->name ?></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <h2>Items</h2>
+    <ul>
+        <?php foreach ($model->playerItems as $playerItem): ?>
+            <li><?= $playerItem->item->name ?></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <h2>Friends</h2>
+    <ul>
+        <?php foreach ($model->getAllFriends() as $friend): ?>
+            <li><?= Html::a($friend->user->username, ['/player/view', 'id' => $friend->id]) ?></li>
+        <?php endforeach; ?>
+    </ul>
 
 </div>
