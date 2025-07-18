@@ -2,16 +2,17 @@
 
 namespace app\controllers;
 
-use app\models\Task;
+use app\models\Goal;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * TaskController implements the CRUD actions for Task model.
+ * GoalController implements the CRUD actions for Goal model.
  */
-class TaskController extends Controller
+class GoalController extends Controller
 {
     /**
      * @inheritDoc
@@ -32,14 +33,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Lists all Task models.
+     * Lists all Goal models.
      *
      * @return string
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Task::find(),
+            'query' => Goal::find()->where(['player_id' => Yii::$app->user->identity->player->id]),
             /*
             'pagination' => [
                 'pageSize' => 50
@@ -58,7 +59,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Displays a single Task model.
+     * Displays a single Goal model.
      * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
@@ -71,13 +72,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Creates a new Task model.
+     * Creates a new Goal model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
-        $model = new Task();
+        $model = new Goal();
+        $model->player_id = Yii::$app->user->identity->player->id;
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -93,7 +95,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Updates an existing Task model.
+     * Updates an existing Goal model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return string|\yii\web\Response
@@ -113,7 +115,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Deletes an existing Task model.
+     * Deletes an existing Goal model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return \yii\web\Response
@@ -127,32 +129,18 @@ class TaskController extends Controller
     }
 
     /**
-     * Finds the Task model based on its primary key value.
+     * Finds the Goal model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Task the loaded model
+     * @return Goal the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Task::findOne(['id' => $id])) !== null) {
+        if (($model = Goal::findOne(['id' => $id, 'player_id' => Yii::$app->user->identity->player->id])) !== null) {
             return $model;
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * Completes a Task.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionComplete($id)
-    {
-        $model = $this->findModel($id);
-        $model->complete();
-
-        return $this->redirect(['index']);
     }
 }

@@ -2,16 +2,18 @@
 
 namespace app\controllers;
 
-use app\models\Task;
+use app\models\Habit;
+use app\models\HabitLog;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * TaskController implements the CRUD actions for Task model.
+ * HabitController implements the CRUD actions for Habit model.
  */
-class TaskController extends Controller
+class HabitController extends Controller
 {
     /**
      * @inheritDoc
@@ -32,14 +34,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Lists all Task models.
+     * Lists all Habit models.
      *
      * @return string
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Task::find(),
+            'query' => Habit::find()->where(['player_id' => Yii::$app->user->identity->player->id]),
             /*
             'pagination' => [
                 'pageSize' => 50
@@ -58,7 +60,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Displays a single Task model.
+     * Displays a single Habit model.
      * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
@@ -71,13 +73,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Creates a new Task model.
+     * Creates a new Habit model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
-        $model = new Task();
+        $model = new Habit();
+        $model->player_id = Yii::$app->user->identity->player->id;
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -93,7 +96,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Updates an existing Task model.
+     * Updates an existing Habit model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return string|\yii\web\Response
@@ -113,7 +116,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Deletes an existing Task model.
+     * Deletes an existing Habit model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return \yii\web\Response
@@ -127,32 +130,35 @@ class TaskController extends Controller
     }
 
     /**
-     * Finds the Task model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Task the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Task::findOne(['id' => $id])) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * Completes a Task.
+     * Logs a habit for a specific date.
      * @param int $id ID
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionComplete($id)
+    public function actionLog($id)
     {
-        $model = $this->findModel($id);
-        $model->complete();
+        $habit = $this->findModel($id);
+        $log = new HabitLog();
+        $log->habit_id = $habit->id;
+        $log->date = date('Y-m-d');
+        $log->save();
 
-        return $this->redirect(['index']);
+        return $this->redirect(['view', 'id' => $id]);
+    }
+
+    /**
+     * Finds the Habit model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return Habit the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Habit::findOne(['id' => $id, 'player_id' => Yii::$app->user->identity->player->id])) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

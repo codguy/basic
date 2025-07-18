@@ -43,7 +43,19 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => ActionColumn::class,
                 'urlCreator' => function ($action, Task $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                 },
+                'template' => '{view} {update} {delete} {complete}',
+                'buttons' => [
+                    'complete' => function ($url, $model, $key) {
+                        return Html::a('Complete', ['complete', 'id' => $model->id], [
+                            'class' => 'btn btn-success btn-xs',
+                            'data' => [
+                                'confirm' => 'Are you sure you want to complete this task?',
+                                'method' => 'post',
+                            ],
+                        ]);
+                    },
+                ],
             ],
         ],
     ]); ?>
