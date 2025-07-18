@@ -99,6 +99,27 @@ class SiteController extends Controller
     }
 
     /**
+     * Signup action.
+     *
+     * @return Response|string
+     */
+    public function actionSignup()
+    {
+        $model = new SignupForm();
+        if ($model->load(Yii::$app->request->post()) && $user = $model->signup()) {
+            $player = new Player();
+            $player->user_id = $user->id;
+            $player->save();
+            Yii::$app->user->login($user);
+            return $this->goHome();
+        }
+
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
      * Displays contact page.
      *
      * @return Response|string
